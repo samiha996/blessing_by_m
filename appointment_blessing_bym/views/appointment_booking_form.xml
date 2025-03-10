@@ -1,0 +1,58 @@
+<odoo>
+    <template id="appointment_booking_form">
+        <t t-call="website.layout">
+            <div class="container py-5">
+                <div class="row">
+                    <!-- Booking Form -->
+                    <div class="col-md-6">
+                        <h2>Book Your Appointment</h2>
+                        <form action="/appointment/submit" method="post">
+                            <input type="hidden" name="appointment_id" t-att-value="appointment.id"/>
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="hidden" name="date" t-att-value="date"/>
+                            <input type="hidden" name="appointment_time" t-att-value="appointment_time"/>
+                            <input type="hidden" name="timezone" t-att-value="timezone"/>
+
+                            <div class="mb-3">
+                                <label class="form-label">Your Name</label>
+                                <input type="text" name="name" class="form-control"/>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Your Email</label>
+                                <input type="email" name="email" class="form-control"/>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Your Phone Number</label>
+                                <input type="text" name="phone" class="form-control"/>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">Confirm Appointment</button>
+                        </form>
+                    </div>
+
+                    <!-- Appointment Details Box -->
+                    <div class="col-md-4 offset-md-1">
+                        <div class="appointment-details card p-3">
+                            <div t-if="appointment.image_1920" t-field="appointment.image_1920" role="img" class="o_appointment_avatar_container d-none d-md-block w-25 me-2 overflow-hidden border rounded ratio ratio-1x1" t-options="{'widget': 'image', 'class': 'o_appointment_avatar_background o_object_fit_cover', 'preview_image': 'image_512'}"/>
+
+                            <h5 class="mb-1" t-out="appointment.name"/>
+                            <p><i class="fa fa-clock"></i> <t t-out="appointment.appointment_duration"/> hour</p>
+                            <hr/>
+                            <h6>Operator</h6>
+                            <p><strong><t t-out="appointment.staff_user_ids.name"/></strong></p>
+                            <p><i class="fa fa-envelope"></i> <t t-out="appointment.staff_user_ids.email"/></p>
+                            <p><i class="fa fa-phone"></i> <t t-out="appointment.staff_user_ids.phone"/></p>
+                            <hr/>
+                            <h6>Appointment Details</h6>
+                            <p><i class="fa fa-calendar"></i> <strong>Date:</strong> <t t-out="date"/></p>
+                            <p><i class="fa fa-clock-o"></i> <strong>Time:</strong> <t t-out="appointment_time"/></p>
+                            <p><i class="fa fa-globe"></i> <strong>Timezone:</strong> <t t-out="timezone"/></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

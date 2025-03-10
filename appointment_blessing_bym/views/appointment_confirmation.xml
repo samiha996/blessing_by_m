@@ -1,0 +1,11 @@
+<odoo>
+    <template id="appointment_confirmation">
+        <t t-call="website.layout">
+            <div class="container py-5 text-center">
+                <h2>Appointment Confirmed!</h2>
+                <p>Your appointment has been successfully scheduled.</p>
+                <a href="/appointment" class="btn btn-success mt-3">Back to Appointments</a>
+            </div>
+        </t>
+    </template>
+</odoo>

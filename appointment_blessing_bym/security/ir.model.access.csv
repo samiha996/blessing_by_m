@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+access_appointment_type,access_appointment_type,model_appointment_type,,1,1,1,1
+access_appointment_slot,access_appointment_slot,model_appointment_slot,,1,1,1,1

@@ -1,0 +1,130 @@
+#appointmentCalendar {
+    max-width: 650px; /* Set the correct width */
+    height: auto; /* Let height adjust dynamically */
+    margin: 0 auto; /* Center the calendar */
+    background: #ffffff;
+    border-radius: 12px; /* Match the rounded border */
+    padding: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: none;
+}
+
+/* Remove unnecessary padding between rows */
+.fc-daygrid-day-frame {
+    padding: 0px;
+    border-radius: 8px;
+}
+
+/* Make the month view display all days without scrolling */
+.fc .fc-daygrid-body {
+    height: auto !important;
+}
+
+/* Adjust individual day cells */
+.fc-daygrid-day {
+    text-align: center;
+    border: none !important; /* Removes the borders */
+    transition: background-color 0.3s ease;
+}
+
+/* Header styling (month name, navigation arrows) */
+.fc-toolbar-title {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    color: #333;
+}
+
+.fc-button {
+    background-color: transparent !important;
+    color: #000 !important;
+    border: none !important;
+    font-size: 18px !important;
+}
+
+/* Remove the border from the calendar table */
+.fc-scrollgrid {
+    border: none !important;
+}
+
+/* Remove borders from the headers (Sun, Mon, etc.) */
+.fc-col-header-cell {
+    border: none !important;
+    font-weight: bold;
+    color: #666;
+}
+
+/* Style for today's date */
+.fc-day-today {
+    background-color: rgba(0, 102, 255, 0.1) !important;
+    color: #0052cc !important;
+    border-radius: 8px;
+}
+
+/* Highlight available appointment days */
+.fc-day-available {
+    background-color: rgba(0, 102, 255, 0.15) !important;
+    border-radius: 8px;
+    color: #0052cc !important;
+    font-weight: bold;
+}
+
+/* Selected Date */
+.fc-day-selected {
+    background-color: #0052cc !important;
+    color: #ffffff !important;
+    border-radius: 8px;
+}
+
+
+
+
+.fc-scroller{
+    overflow: unset !important;
+}
+.fc-scroller .fc-scroller-liquid-absolute{
+    overflow: unset !important;
+}
+
+.fc-scroller-harness {
+    overflow: unset !important;
+}
+
+
+
+
+.fc-day {
+    border-radius: 5px;
+}
+
+
+.btn-outline-primary {
+    width: 100px;
+}
+
+.appointment-details {
+    background: #f9f9f9;
+    border-radius: 8px;
+}
+
+.fc-day.available-date {
+    
+    border-radius: 5px; /* Rounded corners */
+    color: #007bff !important; /* Blue text instead of black */
+    font-weight: bold;
+    text-align: center;
+    transition: all 0.3s ease-in-out;
+}
+
+.fc-day.available-date:hover {
+    background-color: #d1e6ff !important;
+    cursor: pointer;
+}
+
+.fc .fc-daygrid-day-top{
+    flex-direction: column !important;
+}
+
+.fc-daygrid-day-number{
+    color: unset !important;
+}

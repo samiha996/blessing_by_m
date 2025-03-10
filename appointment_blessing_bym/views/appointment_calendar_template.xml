@@ -1,0 +1,234 @@
+<odoo>
+    <template id="appointment_detail_page">
+        <t t-call="website.layout">
+            <!-- variables -->
+            <input type="hidden" id="appointmentTypeId" t-att-value="appointment.id"/>
+            <input type="hidden" id="staffUserId" t-att-value="appointment.staff_user_ids[0].id"/>
+            <h1><t t-esc="appointment_type_id"/></h1>
+
+            <!-- Page Content -->
+            <div class="container py-5">
+                <div class="row">
+                    <!-- Calendar Section -->
+                    <div class="col-md-6">
+                        <h4>Select a date &amp; time</h4>
+                        <div id="appointmentCalendar"></div>
+                        <p>Timezone: 
+                             <select id="timezoneSelector" class="form-select">
+                                <t t-foreach="timezones" t-as="tz">
+                                    <option t-att-value="tz" t-att-selected="'selected' if tz == 'Asia/Dubai' else None"><t t-esc="tz"/></option>
+                                </t>
+                            </select>
+                        </p>
+                    </div>
+
+                    <!-- Available Slots -->
+                    <div class="col-md-3">
+                        <h4>Select a time</h4>
+                        <div id="availableSlots" class="d-flex flex-wrap gap-2"></div>
+                       
+                    </div>
+
+                    <!-- Appointment Details -->
+                    <div class="col-md-3">
+                        <div class="appointment-details card p-3">
+                            <div class="o_appointment_details_type d-flex align-items-center mb-3">
+                                <div t-if="appointment.image_1920" t-field="appointment.image_1920" role="img" class="o_appointment_avatar_container d-none d-md-block w-25 me-2 overflow-hidden border rounded ratio ratio-1x1" t-options="{'widget': 'image', 'class': 'o_appointment_avatar_background o_object_fit_cover', 'preview_image': 'image_512'}"/>
+                                <h5 class="mb-1" t-out="appointment.name"/>
+                            </div>
+                            <p><i class="fa fa-video-camera"></i> Online</p>
+                            <p><i class="fa fa-clock-o"></i> <t t-out="appointment.appointment_duration"/> hour</p>
+                            <hr/>
+                            <h6>Operator</h6>
+                            <p><strong><t t-out="appointment.staff_user_ids.name"/></strong></p>
+                            <p><i class="fa fa-envelope"></i> <t t-out="appointment.staff_user_ids.email"/></p>
+                            <p><i class="fa fa-phone"></i> <t t-out="appointment.staff_user_ids.phone"/></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            
+            <!-- Load FullCalendar from CDN -->
+            <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.15/index.global.min.js"/>
+            <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/web-component@6.1.15/index.global.min.js"/>
+            <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.15/index.global.min.js"/>
+            <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+
+
+            
+            <!-- ........ -->
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    console.log("Appointment calendar script loaded");
+                    const timezoneSelector = document.getElementById("timezoneSelector");
+                    const calendarElement = document.getElementById("appointmentCalendar");
+
+                    timezoneSelector.addEventListener("change", function () {
+                        const selectedTimezone = timezoneSelector.value;
+                        console.log("Selected Timezone:", selectedTimezone);
+                        adjustSlotTimes(selectedTimezone);
+                    });
+
+                    if (!calendarElement) {
+                        console.error("Element with id 'appointmentCalendar' not found!");
+                        return;
+                    }
+                    <!-- Dynamically set appointmentTypeId -->
+                    let appointmentTypeId = parseInt(document.getElementById("appointmentTypeId")?.value);
+                    let selectedDate = null;
+                    
+                    
+                    console.log("Dynamically loaded appointmentTypeId:", appointmentTypeId);
+
+                    if (!appointmentTypeId || isNaN(appointmentTypeId)) {
+                        console.error("Error: appointmentTypeId is missing or invalid!");
+                        return;
+                    }
+                    function fetchAvailableDates() {
+                        fetch('/appointment/get_available_dates', {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ params: { appointment_type_id: appointmentTypeId } })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log("Available dates response:", data);
+                            
+                            
+                            const availableDates = data?.result?.dates || [];
+                            console.log("Extracted available dates:", availableDates);
+
+                            highlightAvailableDates(availableDates);
+                        })
+                        .catch(error => console.error("Error in fetch:", error));
+                    }
+
+                    
+                    function highlightAvailableDates(dates) {
+                        if (!Array.isArray(dates)) {
+                            console.error("Error: `dates` is not an array!", dates);
+                            return;
+                        }
+                        console.log("Reapplying available date styling...");
+                        const calendarDays = document.querySelectorAll(".fc-daygrid-day");
+
+                        document.querySelectorAll(".fc-daygrid-day").forEach(day => {
+                            let date = day.getAttribute("data-date");
+                            if (dates.includes(date)) {
+                                day.classList.add("available-date");
+                            } else {
+                                day.classList.remove("available-date");  
+                            }
+                        });
+                    }
+
+
+                    let calendar = new FullCalendar.Calendar(calendarElement, {
+                        initialView: 'dayGridMonth',
+                        selectable: true,
+                        dateClick: function(info) {
+                            console.log(`Date clicked: ${info.dateStr}`);
+                            selectedDate = info.dateStr; 
+
+                            fetch('/appointment/get_slots', {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ params: { appointment_type_id: appointmentTypeId, selected_date: info.dateStr } })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log("Received response:", data);
+                                const slots = data.result?.slots || [];
+                                updateCalendarSlots(slots);
+                            })
+                            .catch(error => console.error("Error in fetch:", error));
+                        },
+                        datesSet: function() { 
+                            console.log("Month changed, reapplying available date highlights...");
+                            fetchAvailableDates();  
+                        }
+                    });
+
+                    calendar.render();
+                    fetchAvailableDates(); // Call this function to highlight available dates
+
+                    function updateCalendarSlots(slots) {
+                        console.log("Updating calendar with slots:", slots);
+                        const slotContainer = document.getElementById("availableSlots");
+                        slotContainer.innerHTML = "";
+
+                        if (!slots || slots.length === 0) {
+                            slotContainer.innerHTML = "<p>No available slots.</p>";
+                            return;
+                        }
+
+                        slots.forEach(slot => {
+                            const slotElement = document.createElement("button");
+                            slotElement.innerText = slot;
+                            slotElement.className = "btn btn-outline-primary m-1";
+                            const startTime = slot.split(" - ")[0].trim();
+                            slotElement.setAttribute("data-original-time", startTime);
+
+                            slotElement.onclick = function() {
+                                console.log(`Slot clicked: ${selectedDate} - ${startTime}`);
+                                const selectedTimezone = document.getElementById("timezoneSelector").value;
+                                const appointmentTypeId = document.getElementById("appointmentTypeId").value;
+
+                                // Redirect to the booking page with query parameters
+                                window.location.href = `/appointment/${appointmentTypeId}/booking?date=${encodeURIComponent(selectedDate)}&amp;appointment_time=${encodeURIComponent(startTime)}&amp;timezone=${encodeURIComponent(selectedTimezone)}`;
+                            };
+                            slotContainer.appendChild(slotElement);
+                        });
+
+                        adjustSlotTimes(document.getElementById("timezoneSelector").value);
+                    }
+
+                    function adjustSlotTimes(selectedTimezone) {
+                        console.log("Adjusting slot times for timezone:", selectedTimezone);
+                        const slots = document.querySelectorAll("#availableSlots button");
+
+                        slots.forEach(slot => {
+                            const originalTime = slot.getAttribute("data-original-time"); 
+                            if (!originalTime) {
+                                console.warn("No original time found for slot:", slot);
+                                return;
+                            }
+
+                            console.log(`Original slot time: ${originalTime} for timezone: ${selectedTimezone}`);
+
+                           
+                            const [hours, minutes] = originalTime.split(":").map(Number);
+
+                           
+                            let utcDate = new Date();
+                            utcDate.setUTCHours(hours, minutes, 0, 0);
+
+                           
+                            const userTime = new Intl.DateTimeFormat('en-US', {
+                                timeZone: selectedTimezone,
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: false
+                            }).format(utcDate);
+
+                            console.log(`Converted time for timezone ${selectedTimezone}: ${userTime}`);
+
+                           
+                            slot.innerText = userTime;
+                        });
+                    }
+
+                });
+            </script>
+
+
+
+
+
+
+
+
+        </t>
+    </template>
+</odoo>

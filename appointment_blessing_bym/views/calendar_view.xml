@@ -1,0 +1,17 @@
+<odoo>
+
+    <!-- Define the action before using it in the menu -->
+    <record id="action_custom_calendar" model="ir.actions.act_window">
+        <field name="name">Calendar</field>
+        <field name="res_model">calendar.event</field>
+        <field name="view_mode">calendar,list,form</field>
+       
+    </record>
+
+    <!-- Submenu item linking to the action -->
+    <menuitem id="menu_custom_calendar_main"
+              name="Calendar"
+              parent="menu_appointment_root"
+              action="action_custom_calendar"
+              sequence="20"/>
+</odoo>

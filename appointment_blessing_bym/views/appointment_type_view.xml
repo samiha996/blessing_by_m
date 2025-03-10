@@ -1,0 +1,104 @@
+<odoo>
+    <record id="view_appointment_type_form" model="ir.ui.view">
+        <field name="name">appointment.type.form</field>
+        <field name="model">appointment.type</field>
+        <field name="arch" type="xml">
+            <form string="Appointment Type">
+                <sheet>
+                    <field name="image_1920" widget="image" class="oe_avatar"/>
+                    <div class="oe_title mb-4">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder='e.g. "Technical Demo"'/></h1>
+                    </div>
+                    <group>
+                        <group name="left_details">
+                            <label for="appointment_duration"/>
+                            <div>
+                                <field name="appointment_duration" class="oe_inline" widget="float_time"/><span> hours</span>
+                            </div>
+                            <!-- <label for="slot_creation_interval"/>
+                            <div>
+                                <field name="slot_creation_interval" class="oe_inline" widget="float_time"/><span> hours</span>
+                            </div> -->
+                            <label for="min_schedule_hours" string="Pre-Booking Time"/>
+                            <div>
+                                <field name="min_schedule_hours" class="oe_inline" widget="float_time"/><span> hours before the meeting</span>
+                            </div>
+                             <label for="category_time_display" string="Scheduling Window"/>
+                            
+                            <div>
+                                <field name="category_time_display" widget="radio" options="{'horizontal': true}"/>
+                                <span invisible="category_time_display != 'recurring_fields'">
+                                    Up to <field name="max_schedule_days" class="oe_inline mx-1 o_input_5ch"/> days into the future
+                                </span>
+                                <span class="d-flex flex-nowrap" invisible="category_time_display != 'punctual_fields'">
+                                    From
+                                    <field name="start_datetime" placeholder="Date" class="oe_inline px-2" widget="date" required="category_time_display == 'punctual_fields'"/>
+                                    to
+                                    <field name="end_datetime" placeholder="Date" class="oe_inline px-2" widget="date" required="category_time_display == 'punctual_fields'"/>
+                                </span>
+                            </div>
+
+                        </group>
+
+                        <group name="right_details">
+                            <field name="category" invisible='1'/>
+                            <!-- Users Details -->
+                            <field name="staff_user_ids" invisible='1' widget="many2many_avatar_user"
+                                placeholder="Select Users..."/>
+                        </group>
+
+                    
+                    </group>
+                    <notebook>
+                        <page string="Schedule" name="slots">
+                            <field name="category" invisible="1"/>
+                            <field name="slot_ids">
+                                <list editable="bottom" class="o_appointment_slots_list">
+                                    <field name="weekday" string="Every"
+                                        column_invisible="parent.category == 'custom'"/>
+                                    <field name="start_hour" string="From" widget="float_time"
+                                        column_invisible="parent.category == 'custom'"/>
+                                    <button name="durationArrow" class="fa fa-long-arrow-right text-center" title="Until (max)"
+                                        column_invisible="parent.category == 'custom'"/>
+                                    <field name="end_hour" string="To" widget="float_time"
+                                        column_invisible="parent.category == 'custom'"/>
+                                    <field name="start_datetime" column_invisible="parent.category != 'custom'"/>
+                                    <field name="end_datetime" column_invisible="parent.category != 'custom'"/>
+                                    <field name="restrict_to_user_ids" widget="many2many_avatar_user" domain="[('id', 'in', parent.staff_user_ids)]"
+                                        column_invisible="parent.category in ['custom', 'anytime']"
+                                        options="{'no_create': True}" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                        </notebook>
+
+
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_appointment_type_list" model="ir.ui.view">
+        <field name="name">appointment.type.list</field>
+        <field name="model">appointment.type</field>
+        <field name="arch" type="xml">
+            <list string="Appointment Types">
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_appointment_type" model="ir.actions.act_window">
+        <field name="name">Appointment Types</field>
+        <field name="res_model">appointment.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_appointment_type"
+              name="Appointment Types"
+              parent="menu_appointment_root"
+              action="action_appointment_type"
+              sequence="10"/>
+</odoo>
